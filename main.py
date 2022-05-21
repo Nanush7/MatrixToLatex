@@ -1,5 +1,6 @@
 """
 Copyright (c) 2022 Nanush7. MIT license, see LICENSE file.
+Hecho para Belén.
 """
 import os
 from time import sleep
