@@ -16,7 +16,7 @@ from utils import query_yes_no
 
 class App:
     """
-    Agregar descripción.
+    Main CLI class.
     """
 
     def __init__(self):
@@ -26,15 +26,15 @@ class App:
         self.m: int = 0
         self.n: int = 0
 
-    def get_matrix(self):
+    def input_matrix(self):
         """
-        Obtener la matriz del sistema a calcular.
+        Obtener la matriz.
         """
         # Obtener cantidad de filas y columnas.
         while True:
             try:
-                # m = filas (ecuaciones).
-                # n = columnas (incógnitas).
+                # m = filas.
+                # n = columnas.
                 m = int(input('m (cantidad de filas) = '))
                 n = int(input('n (cantidad de columnas) = '))
                 self.m = m
@@ -50,14 +50,13 @@ class App:
 
         # Obtener valores.
         self.out.info(
-            'Para ingresar una fila a la matriz, tenés que escribir todos los coeficientes separados por espacios.\n')
-        print('Para poner una fracción bla/bla.')
+            'Para ingresar una fila a la matriz tenés que escribir todos los coeficientes separados por espacios.\n')
+        print('Para poner una fracción: bla/bla.')
         print('Para poner un subíndice: bla_bla (la gracia es que no tenés que poner bla_{bla}).')
         print('Para poner un superíndice: bla^bla (lo mismo de arriba).\n')
         self.out.warning('No se pueden usar los tres operadores de arriba al mismo tiempo (Próximamente (? ).\n')
         self.out.info(f'Tenés que poner {n} números por fila.')
 
-        # ¿float64?
         matrix = np.zeros((m, n), dtype=np.chararray)
 
         # Se agrega fila por fila a la matriz.
@@ -79,7 +78,7 @@ class App:
                         break
 
                 except IndexError:
-                    self.out.error(f'La fila debe tener {m} columnas.')
+                    self.out.error(f'La fila debe tener {m + 1} columnas.')
                 except ZeroDivisionError:
                     sleep(1)
                     self.out.error('Acaba de morir un gatito :(')
@@ -92,28 +91,19 @@ class App:
         # Separar el input donde hay espacios.
         string_list = string_input.split(' ')
 
-        # Verificar y crear objetos de fracciones.
+        # Verificar presencia de operadores.
         for index, val in enumerate(string_list):  # TODO: Permitir los tres operadores.
             if '/' in val:
-                # Obtener los números de la fracción.
-                values = val.split('/')
-
-                # Revisar que el número del denominador no sea 0.
-                if values[1] == '0':
-                    raise ZeroDivisionError
-
-                # Reemplazar por la fracción el LaTeX.
-                string_list[index] = rf'{{{values[0]} \over {values[1]}}}'
+                # Obtener la fracción en LaTeX.
+                string_list[index] = LatexGen.get_fraction(val)
 
             elif '_' in val:
-                # Generar subíndice en LaTeX.
-                values = val.split('_')
-                string_list[index] = rf'{values[0]}_{{{values[1]}}}'
+                # Obtener subíndice en LaTeX.
+                string_list[index] = LatexGen.get_subscript(val)
 
             elif '^' in val:
-                # Generar subíndice en LaTeX.
-                values = val.split('^')
-                string_list[index] = rf'{values[0]}^{{{values[1]}}}'
+                # Obtener superíndice en LaTeX.
+                string_list[index] = LatexGen.get_superscript(val)
 
         return string_list
 
@@ -125,24 +115,24 @@ class App:
 
     def run(self):
         """
-        Correr aplicación.
+        Main.
         """
         self.clear()
 
         self.out.info('Ctrl-C para salir.')
 
-        matrix = self.get_matrix()
+        latex = self.input_matrix()
 
         self.clear()
 
-        result = matrix.get_latex()
+        result = latex.get_matrix()
         self.out.success('LaTeX:\n')
         print(result + '\n')
 
         if query_yes_no('¿Querés copiarlo al portapapeles?'):
             pyperclip.copy(result)
 
-        del matrix
+        del latex
 
 
 if __name__ == '__main__':
@@ -151,5 +141,5 @@ if __name__ == '__main__':
         try:
             app.run()
         except KeyboardInterrupt:
-            print('Ta luego.')
+            print('\nTa luego.')
             break
