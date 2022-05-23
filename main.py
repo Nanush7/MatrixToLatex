@@ -92,18 +92,20 @@ class App:
         string_list = string_input.split(' ')
 
         # Verificar presencia de operadores.
-        for index, val in enumerate(string_list):  # TODO: Permitir los tres operadores.
+        for index, val in enumerate(string_list):
+            if '_' in val:
+                # Obtener subíndice en LaTeX.
+                val = LatexGen.get_index(val, '_')
+
+            if '^' in val:
+                # Obtener superíndice en LaTeX.
+                val = LatexGen.get_index(val, '^')
+
             if '/' in val:
                 # Obtener la fracción en LaTeX.
-                string_list[index] = LatexGen.get_fraction(val)
+                val = LatexGen.get_fraction(val)
 
-            elif '_' in val:
-                # Obtener subíndice en LaTeX.
-                string_list[index] = LatexGen.get_subscript(val)
-
-            elif '^' in val:
-                # Obtener superíndice en LaTeX.
-                string_list[index] = LatexGen.get_superscript(val)
+            string_list[index] = val
 
         return string_list
 

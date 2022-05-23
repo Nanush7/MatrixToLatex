@@ -2,6 +2,7 @@
 Copyright (c) 2022 Nanush7. MIT license, see LICENSE file.
 Hecho para Belén.
 """
+import re
 
 
 class LatexGen:
@@ -42,26 +43,27 @@ class LatexGen:
         Generar fracción en LaTeX.
         """
         # Separar los números de la fracción.
-        values = value.split('/')
+        operands = value.split('/')
 
         # Revisar que el número del denominador no sea 0.
-        if values[1] == '0':
+        if operands[1] == '0':
             raise ZeroDivisionError
 
-        return rf'{{{values[0]} \over {values[1]}}}'
+        return rf'{{{operands[0]} \over {operands[1]}}}'
 
     @staticmethod
-    def get_superscript(value: str) -> str:
+    def get_index(value: str, operator: str) -> str:
         """
-        Generar superíndice en LaTeX.
+        Generar índice en LaTeX.
         """
-        values = value.split('^')
-        return rf'{values[0]}^{{{values[1]}}}'
+        operands = value.split(operator)
+        # Lo que queda a la derecha del operador
+        # hay que separarlo donde haya espacios.
+        right_operand = re.search(r'[\^/_]', operands[1])
+        if right_operand is None:
+            row = rf'{operands[0]}{operator}{{{operands[1]}}}'
+        else:
+            match_index = right_operand.span()[0]
+            row = rf'{operands[0]}{operator}{{{right_operand.string[0:match_index]}}}{right_operand.string[match_index:]}'
 
-    @staticmethod
-    def get_subscript(value: str) -> str:
-        """
-        Generar subíndice en LaTeX.
-        """
-        values = value.split('_')
-        return rf'{values[0]}_{{{values[1]}}}'
+        return row
