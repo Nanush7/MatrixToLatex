@@ -46,7 +46,8 @@ class LatexGen:
         operands = value.split('/')
 
         # Revisar que el número del denominador no sea 0.
-        if operands[1] == '0':
+        zero = re.search(r"\A0\^", operands[1])
+        if zero is not None or operands[1] == '0':
             raise ZeroDivisionError
 
         return rf'{{{operands[0]} \over {operands[1]}}}'
@@ -61,9 +62,9 @@ class LatexGen:
         # hay que separarlo donde haya espacios.
         right_operand = re.search(r'[\^/_]', operands[1])
         if right_operand is None:
-            row = rf'{operands[0]}{operator}{{{operands[1]}}}'
+            row = f'{operands[0]}{operator}{{{operands[1]}}}'
         else:
             match_index = right_operand.span()[0]
-            row = rf'{operands[0]}{operator}{{{right_operand.string[0:match_index]}}}{right_operand.string[match_index:]}'
+            row = f'{operands[0]}{operator}{{{right_operand.string[0:match_index]}}}{right_operand.string[match_index:]}'
 
         return row

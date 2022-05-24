@@ -54,7 +54,7 @@ class App:
         print('Para poner una fracción: bla/bla.')
         print('Para poner un subíndice: bla_bla (la gracia es que no tenés que poner bla_{bla}).')
         print('Para poner un superíndice: bla^bla (lo mismo de arriba).\n')
-        self.out.warning('No se pueden usar los tres operadores de arriba al mismo tiempo (Próximamente (? ).\n')
+
         self.out.info(f'Tenés que poner {n} números por fila.')
 
         matrix = np.zeros((m, n), dtype=np.chararray)
@@ -67,9 +67,7 @@ class App:
 
                 try:
                     user_input = input('--> ')
-                    row_list = self._get_string_list(user_input)
-                    if len(row_list) != n:
-                        raise IndexError
+                    row_list = self.get_string_list(user_input, n)
 
                     # Preguntar al usuario si la fila es correcta.
                     if query_yes_no('¿Continuar?', 'si'):
@@ -78,7 +76,7 @@ class App:
                         break
 
                 except IndexError:
-                    self.out.error(f'La fila debe tener {m + 1} columnas.')
+                    self.out.error(f'La fila debe tener {n} columnas.')
                 except ZeroDivisionError:
                     sleep(1)
                     self.out.error('Acaba de morir un gatito :(')
@@ -87,9 +85,13 @@ class App:
         return LatexGen(matrix, m, n)
 
     @staticmethod
-    def _get_string_list(string_input: str) -> List[str]:
+    def get_string_list(string_input: str, n: int) -> List[str]:
         # Separar el input donde hay espacios.
         string_list = string_input.split(' ')
+
+        # Verificar que esté la cantidad de columnas requerida.
+        if len(string_list) != n:
+            raise IndexError
 
         # Verificar presencia de operadores.
         for index, val in enumerate(string_list):
